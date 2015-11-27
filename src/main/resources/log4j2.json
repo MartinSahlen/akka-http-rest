@@ -1,0 +1,12 @@
+{ "configuration": { "status": "error", "name": "akka-rest-api",
+  "packages": "org.apache.logging.log4j.test",
+  "ThresholdFilter": { "level": "debug" },
+  "appenders": {
+    "Console": { "name": "STDOUT",
+      "PatternLayout": { "pattern": "%d [%-6p] %c{1} - %m%n" }
+    }
+  },
+  "loggers": {
+    "root": { "level": "info", "AppenderRef": { "ref": "STDOUT" }}
+  }
+}}
