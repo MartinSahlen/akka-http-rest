@@ -1,13 +1,18 @@
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import akka.http.scaladsl.model.StatusCodes._
+import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.Credentials
 import akka.http.scaladsl.server.directives.Credentials.Provided
-import akka.http.scaladsl.server.{Directives, MalformedRequestContentRejection}
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.LazyLogging
 import spray.json._
 import scala.util.Properties
+import StatusCodes._
+
 
 // Request domain objects
 
@@ -29,11 +34,20 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
       value.asJsObject.getFields(CLIENT_NAME_JSON_FIELD) match {
         case Seq(JsString(clientName)) ⇒
           new PostRequest(clientName)
-        case _ ⇒ deserializationError("could not deserialize JSON")
+        case _ ⇒ deserializationError("could not deserialize JSON to valid object. valid fields: " + CLIENT_NAME_JSON_FIELD +
+        ". Got fields: " + value.asJsObject.fields.keys.mkString(",")
+        )
       }
     }
-  }
+  } // LIST of gotten fields, + LIST of valid fields
 }
+
+case class ErrorMessage(message: String)
+object ErrorMessage {
+  import spray.json.DefaultJsonProtocol._
+  implicit val errorFormat = jsonFormat1(ErrorMessage.apply)
+}
+
 
 object Server extends LazyLogging with Directives with JsonSupport with App {
 
@@ -48,17 +62,29 @@ object Server extends LazyLogging with Directives with JsonSupport with App {
     }
   }
 
+   def myRejectionHandler =
+    RejectionHandler.newBuilder()
+      .handle { case MalformedRequestContentRejection(msg , _) =>
+        complete(BadRequest, ErrorMessage(msg))
+      }
+      .handle { case UnsupportedRequestContentTypeRejection(supported) =>
+        complete(BadRequest, ErrorMessage("Unsupported content type in request. supported: " + supported.mkString(",")))
+      }
+      .handleAll[MethodRejection] { methodRejections ⇒
+        val names = methodRejections.map(_.supported.name)
+        complete(MethodNotAllowed, ErrorMessage(s"Method not allowed. Supported methods: ${names mkString " or "}"))
+      }
+      .handleNotFound { complete(NotFound, ErrorMessage("Not found")) }
+      .result()
+
   val route =
-    path("process") {
-      post {
-        authenticateBasic[String]("martin", basicAuth) { username ⇒
-          logger.info(s"$username successfully logged in!")
-          entity(as[PostRequest]) { request =>
-            request.clientName match {
-              case "martin"  =>
-                complete(PostResponse(s"yo"))
-              case _            =>
-                reject(MalformedRequestContentRejection(s"Couldn't find a client with name ${request.clientName}"))
+    handleRejections(myRejectionHandler) {
+      path("login") {
+        post {
+          authenticateBasic[String]("martin", basicAuth) { username ⇒
+            logger.info(s"$username successfully logged in!")
+            entity(as[PostRequest]) { request =>
+              complete(PostResponse(s"${request.clientName}"))
             }
           }
         }
