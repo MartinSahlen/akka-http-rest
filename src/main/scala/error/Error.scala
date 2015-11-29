@@ -1,0 +1,6 @@
+package error
+
+
+object Error {
+
+}

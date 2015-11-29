@@ -2,8 +2,6 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
-import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.Credentials
 import akka.http.scaladsl.server.directives.Credentials.Provided
@@ -11,8 +9,6 @@ import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.LazyLogging
 import spray.json._
 import scala.util.Properties
-import StatusCodes._
-
 
 // Request domain objects
 
@@ -32,14 +28,24 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
     )
     def read(value: JsValue) = {
       value.asJsObject.getFields(CLIENT_NAME_JSON_FIELD) match {
-        case Seq(JsString(clientName)) ⇒
+        case Seq(JsString(clientName)) =>
           new PostRequest(clientName)
-        case _ ⇒ deserializationError("could not deserialize JSON to valid object. valid fields: " + CLIENT_NAME_JSON_FIELD +
-        ". Got fields: " + value.asJsObject.fields.keys.mkString(",")
-        )
+        case _ =>
+          val message = "Could not deserialize object, got missing or unknown fields"
+          deserializationError(
+            message,
+            UnknownFieldsException(message, List(CLIENT_NAME_JSON_FIELD), value.asJsObject.fields.keys.toList))
       }
     }
   } // LIST of gotten fields, + LIST of valid fields
+}
+
+case class UnknownFieldsException(message:String, fields:List[String], fieldsReceived:List[String]) extends Throwable
+
+case class UnknownFieldsErrorMessage(message: String, fields:List[String], fieldsReceived:List[String])
+object UnknownFieldsErrorMessage {
+  import spray.json.DefaultJsonProtocol._
+  implicit val errorFormat = jsonFormat3(UnknownFieldsErrorMessage.apply)
 }
 
 case class ErrorMessage(message: String)
@@ -62,10 +68,10 @@ object Server extends LazyLogging with Directives with JsonSupport with App {
     }
   }
 
-   def myRejectionHandler =
+  val myRejectionHandler =
     RejectionHandler.newBuilder()
-      .handle { case MalformedRequestContentRejection(msg , _) =>
-        complete(BadRequest, ErrorMessage(msg))
+      .handle { case MalformedRequestContentRejection(msg, Some(UnknownFieldsException(message, fields, fieldsReceived))) =>
+        complete(BadRequest, UnknownFieldsErrorMessage(message, fields, fieldsReceived))
       }
       .handle { case UnsupportedRequestContentTypeRejection(supported) =>
         complete(BadRequest, ErrorMessage("Unsupported content type in request. supported: " + supported.mkString(",")))
@@ -78,17 +84,17 @@ object Server extends LazyLogging with Directives with JsonSupport with App {
       .result()
 
   val route =
-    handleRejections(myRejectionHandler) {
-      path("login") {
-        post {
-          authenticateBasic[String]("martin", basicAuth) { username ⇒
-            logger.info(s"$username successfully logged in!")
-            entity(as[PostRequest]) { request =>
-              complete(PostResponse(s"${request.clientName}"))
+       handleRejections(myRejectionHandler) {
+        path("login") {
+          post {
+            authenticateBasic[String]("martin", basicAuth) { username ⇒
+              logger.info(s"$username successfully logged in!")
+              entity(as[PostRequest]) { request =>
+                complete(PostResponse(s"${request.clientName}"))
+              }
             }
           }
         }
-      }
     }
 
   val (interface, port) = ("0.0.0.0", Properties.envOrElse("PORT", "8080").toInt)

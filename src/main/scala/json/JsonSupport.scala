@@ -1,0 +1,6 @@
+package json
+
+
+class JsonSupport {
+
+}
