@@ -7,13 +7,24 @@ import akka.http.scaladsl.server.directives.Credentials
 import akka.http.scaladsl.server.directives.Credentials.Provided
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.LazyLogging
+import com.wix.accord._
+import com.wix.accord.dsl._
 import spray.json._
+
 import scala.util.Properties
 
 // Request domain objects
 
 case class PostResponse(status: String)
 case class PostRequest(clientName: String)
+
+object PostRequest {
+  implicit val postRequestValidation = validator[PostRequest] { p =>
+    p.clientName  as "client name length" is notEmpty
+    p.clientName.length() as "clientName:length" should be > 5
+    p.clientName as "clientName:prefix" should startWith("martin")
+  }
+}
 
 // Request domain object serializers
 
@@ -24,14 +35,14 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 
   implicit object StartProcessingRequestFormat extends RootJsonFormat[PostRequest] {
     def write(request: PostRequest) = JsObject(
-      CLIENT_NAME_JSON_FIELD  → JsString(request.clientName)
+      CLIENT_NAME_JSON_FIELD  -> JsString(request.clientName)
     )
     def read(value: JsValue) = {
       value.asJsObject.getFields(CLIENT_NAME_JSON_FIELD) match {
         case Seq(JsString(clientName)) =>
           new PostRequest(clientName)
         case _ =>
-          val message = "Could not deserialize object, got missing or unknown fields"
+          val message = "Could not deserialize object, got missing / unknown fields, null values and / or wrong types."
           deserializationError(
             message,
             UnknownFieldsException(message, List(CLIENT_NAME_JSON_FIELD), value.asJsObject.fields.keys.toList))
@@ -88,17 +99,27 @@ object Server extends LazyLogging with Directives with JsonSupport with App {
       .result()
 
   val route =
-       handleRejections(myRejectionHandler) {
-        path("login") {
-          post {
-            authenticateBasic[String]("martin", basicAuth) { username ⇒
-              logger.info(s"$username successfully logged in!")
-              entity(as[PostRequest]) { request =>
-                complete(PostResponse(s"${request.clientName}"))
+     handleRejections(myRejectionHandler) {
+       (pathPrefix("login") & pathEndOrSingleSlash) {
+        post {
+          authenticateBasic[String]("martin", basicAuth) { username ⇒
+            logger.info(s"$username successfully logged in!")
+            entity(as[PostRequest]) { request =>
+              com.wix.accord.validate(request) match {
+                case com.wix.accord.Success => complete(PostResponse(s"${request.clientName}"))
+                case f@Failure(_) => {
+                  complete(BadRequest, for { v <- f.violations } yield {
+                    JsObject(Map("error" -> JsString(v.constraint),
+                      "description" -> JsString(v.description.getOrElse("")),
+                      "value" -> JsString(v.value.toString)
+                    ))
+                  })
+                }
               }
             }
           }
         }
+      }
     }
 
   val (interface, port) = ("0.0.0.0", Properties.envOrElse("PORT", "8080").toInt)

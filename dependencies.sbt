@@ -40,11 +40,16 @@ val akkaHttp = Seq(
   "com.typesafe.akka" %% "akka-http-spray-json-experimental" % akkaHttpVersion
 )
 
+val accord = "com.wix" %% "accord-core" % "0.5" :: Nil
+
+
 libraryDependencies ++=
+    accord      ++
     akka        ++
+    akkaHttp    ++
     jackson     ++
     joda        ++
     loggingDeps ++
-    testingDeps ++
-    akkaHttp
+    testingDeps
+
 
