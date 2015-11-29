@@ -73,6 +73,10 @@ object Server extends LazyLogging with Directives with JsonSupport with App {
       .handle { case MalformedRequestContentRejection(msg, Some(UnknownFieldsException(message, fields, fieldsReceived))) =>
         complete(BadRequest, UnknownFieldsErrorMessage(message, fields, fieldsReceived))
       }
+      .handle { case MalformedRequestContentRejection(msg, e) =>
+        println(e)
+        complete(BadRequest, ErrorMessage(msg))
+      }
       .handle { case UnsupportedRequestContentTypeRejection(supported) =>
         complete(BadRequest, ErrorMessage("Unsupported content type in request. supported: " + supported.mkString(",")))
       }
