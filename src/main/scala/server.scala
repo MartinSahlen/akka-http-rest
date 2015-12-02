@@ -41,7 +41,7 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
       value.asJsObject.getFields(CLIENT_NAME_JSON_FIELD) match {
         case Seq(JsString(clientName)) =>
           new PostRequest(clientName)
-        case wat =>
+        case _ =>
           val message = s"Could not deserialize object, got missing / unknown fields, null values and / or wrong types:"
           deserializationError(
             message,
@@ -51,9 +51,9 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
   } // LIST of gotten fields, + LIST of valid fields
 }
 
-case class UnknownFieldsException(message:String, fields:List[String], fieldsReceived:List[String]) extends Throwable
+case class UnknownFieldsException(message:String, validFields:List[String], fieldsReceived:List[String]) extends Throwable
 
-case class UnknownFieldsErrorMessage(message: String, fields:List[String], fieldsReceived:List[String])
+case class UnknownFieldsErrorMessage(message: String, validFields:List[String], fieldsReceived:List[String])
 object UnknownFieldsErrorMessage {
   import spray.json.DefaultJsonProtocol._
   implicit val errorFormat = jsonFormat3(UnknownFieldsErrorMessage.apply)
