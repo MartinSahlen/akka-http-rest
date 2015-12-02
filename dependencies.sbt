@@ -31,7 +31,7 @@ val testingDeps = Seq(
 
 val joda = "com.github.nscala-time" % "nscala-time_2.11" % "2.6.0" :: Nil
 
-val akkaHttpVersion = "2.0-M1"
+val akkaHttpVersion = "2.0-M2"
 
 val akkaHttp = Seq(
   "com.typesafe.akka" %% "akka-stream-experimental" % akkaHttpVersion,

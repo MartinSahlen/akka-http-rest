@@ -41,8 +41,8 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
       value.asJsObject.getFields(CLIENT_NAME_JSON_FIELD) match {
         case Seq(JsString(clientName)) =>
           new PostRequest(clientName)
-        case _ =>
-          val message = "Could not deserialize object, got missing / unknown fields, null values and / or wrong types."
+        case wat =>
+          val message = s"Could not deserialize object, got missing / unknown fields, null values and / or wrong types:"
           deserializationError(
             message,
             UnknownFieldsException(message, List(CLIENT_NAME_JSON_FIELD), value.asJsObject.fields.keys.toList))
