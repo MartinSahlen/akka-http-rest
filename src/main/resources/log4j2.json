@@ -3,7 +3,7 @@
   "ThresholdFilter": { "level": "debug" },
   "appenders": {
     "Console": { "name": "STDOUT",
-      "PatternLayout": { "pattern": "%d [%-6p] %c{1} - %m%n" }
+      "PatternLayout": { "pattern": "%d [%-p] %c{1} - %m%n" }
     }
   },
   "loggers": {
