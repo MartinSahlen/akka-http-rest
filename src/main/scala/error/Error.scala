@@ -1,6 +1,0 @@
-package error
-
-
-object Error {
-
-}
