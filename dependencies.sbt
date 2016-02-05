@@ -42,7 +42,6 @@ val akkaHttp = Seq(
 
 val accord = "com.wix" %% "accord-core" % "0.5" :: Nil
 
-
 libraryDependencies ++=
     accord      ++
     akka        ++
@@ -51,5 +50,3 @@ libraryDependencies ++=
     joda        ++
     loggingDeps ++
     testingDeps
-
-
