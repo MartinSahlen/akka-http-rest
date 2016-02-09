@@ -1,10 +1,20 @@
 
+val slickVersion = "3.1.1"
+val slick = "com.typesafe.slick" %% "slick" % slickVersion :: Nil
+
 val akkaVersion = "2.4.2-RC2"
+
 val akka = Seq(
   "com.typesafe.akka" %% "akka-actor"   % akkaVersion,
   "com.typesafe.akka" %% "akka-slf4j"   % akkaVersion,
   "com.typesafe.akka" %% "akka-testkit" % akkaVersion
 )
+
+val postgreSqlVersion = "9.4.1207"
+val postgreSql = "org.postgresql" % "postgresql" % postgreSqlVersion :: Nil
+
+val flywayVersion = "3.2.1"
+val flyway = "org.flywaydb" % "flyway-core"% flywayVersion :: Nil
 
 val log4jVersion: String = "2.5"
 val loggingDeps = Seq(
@@ -26,7 +36,8 @@ val jackson = Seq(
 val testingDeps = Seq(
   "org.scalatest" % "scalatest_2.11"  % "3.0.0-M15"   % "test",
   "junit"         % "junit"           % "4.12"    % "test",
-  "org.hamcrest"  % "hamcrest-all"    % "1.3"     % "test"
+  "org.hamcrest"  % "hamcrest-all"    % "1.3"     % "test",
+  "com.h2database" % "h2" % "1.4.191"
 )
 
 val joda = "com.github.nscala-time" % "nscala-time_2.11" % "2.8.0" :: Nil
@@ -46,7 +57,10 @@ libraryDependencies ++=
     accord      ++
     akka        ++
     akkaHttp    ++
+    flyway      ++
     jackson     ++
     joda        ++
     loggingDeps ++
+    postgreSql  ++
+    slick       ++
     testingDeps

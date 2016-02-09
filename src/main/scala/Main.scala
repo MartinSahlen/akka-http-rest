@@ -1,22 +1,20 @@
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.LazyLogging
-import json.JsonSupport
-import rejection.Rejection
-import routes.Login
-import scala.util.Properties
+import http.HttpService
+import utils.{ Migration, Config }
 
-object Server extends LazyLogging with Directives with JsonSupport with App {
+
+object Main extends LazyLogging with HttpService with App with Migration with Config {
 
   implicit val actorSystem = ActorSystem("akka-rest-api")
   implicit val materializer = ActorMaterializer()
   implicit val executionContect = actorSystem.dispatcher
-  val (interface, port) = ("0.0.0.0", Properties.envOrElse("PORT", "8080").toInt)
 
-  var routes = handleRejections(Rejection.myRejectionHandler)(Login.route)
+  migrate()
 
+  val (interface, port) = (httpInterface, httpPort)
   val binding = Http().bindAndHandle(handler = routes, interface = interface, port = port)
   logger.info(s"Bound to port $port on interface $interface")
   binding onFailure {
