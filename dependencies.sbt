@@ -2,14 +2,6 @@
 val slickVersion = "3.1.1"
 val slick = "com.typesafe.slick" %% "slick" % slickVersion :: Nil
 
-val akkaVersion = "2.4.2-RC2"
-
-val akka = Seq(
-  "com.typesafe.akka" %% "akka-actor"   % akkaVersion,
-  "com.typesafe.akka" %% "akka-slf4j"   % akkaVersion,
-  "com.typesafe.akka" %% "akka-testkit" % akkaVersion
-)
-
 val postgreSqlVersion = "9.4.1207"
 val postgreSql = "org.postgresql" % "postgresql" % postgreSqlVersion :: Nil
 
@@ -27,11 +19,7 @@ val loggingDeps = Seq(
 
 // Jackson is needed to configure Log4j using JSON
 val jacksonVersion: String = "2.7.1"
-val jackson = Seq(
-  "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
-  "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
-  "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion
-)
+val jackson = "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion :: Nil
 
 val testingDeps = Seq(
   "org.scalatest" % "scalatest_2.11"  % "3.0.0-M15"   % "test",
@@ -42,25 +30,27 @@ val testingDeps = Seq(
 
 val joda = "com.github.nscala-time" % "nscala-time_2.11" % "2.8.0" :: Nil
 
-val akkaHttpVersion = "2.0.3"
+val akkaVersion = "2.4.2-RC2"
 
-val akkaHttp = Seq(
-  "com.typesafe.akka" %% "akka-stream-experimental" % akkaHttpVersion,
-  "com.typesafe.akka" %% "akka-http-core-experimental" % akkaHttpVersion,
-  "com.typesafe.akka" %% "akka-http-experimental" % akkaHttpVersion,
-  "com.typesafe.akka" %% "akka-http-spray-json-experimental" % akkaHttpVersion
+val akka = Seq(
+  "com.typesafe.akka" %% "akka-http-experimental" % akkaVersion,
+  "com.typesafe.akka" %% "akka-http-spray-json-experimental" % akkaVersion,
+  "com.typesafe.akka" %% "akka-slf4j"   % akkaVersion,
+  "com.typesafe.akka" %% "akka-testkit" % akkaVersion
 )
 
 val accord = "com.wix" %% "accord-core" % "0.5" :: Nil
 
+val swagger = "com.github.swagger-akka-http" %% "swagger-akka-http" % "0.6.2" :: Nil
+
 libraryDependencies ++=
     accord      ++
     akka        ++
-    akkaHttp    ++
     flyway      ++
     jackson     ++
     joda        ++
     loggingDeps ++
     postgreSql  ++
     slick       ++
+    swagger     ++
     testingDeps

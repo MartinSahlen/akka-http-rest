@@ -15,11 +15,12 @@ object Main extends LazyLogging with HttpService with App with Migration with Co
   migrate()
 
   val (interface, port) = (httpInterface, httpPort)
-  val binding = Http().bindAndHandle(handler = routes, interface = interface, port = port)
+  val binding = Http().bindAndHandle(handler = allRoutes, interface = interface, port = port)
   logger.info(s"Bound to port $port on interface $interface")
   binding onFailure {
     case ex: Exception ⇒
       logger.error(s"Failed to bind to $interface:$port!", ex)
   }
+  sys.addShutdownHook(actorSystem.terminate())
 }
 
