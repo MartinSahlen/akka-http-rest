@@ -3,6 +3,7 @@ package http
 import akka.http.scaladsl.server.Directives
 import com.github.swagger.akka.model.{Contact, Info}
 import com.github.swagger.akka.{HasActorSystem, SwaggerHttpService}
+import io.swagger.models.Swagger
 import rejection.Rejection
 import routes.LoginService
 import utils.CorsSupport
@@ -20,6 +21,8 @@ trait HttpService extends Directives with CorsSupport with SwaggerHttpService wi
     Map())
   override val basePath = "/"    //the basePath for the API you are exposing
   override val apiDocsPath = "/api-docs" //where you want the swagger-json endpoint exposed
+
+  //override def swaggerConfig { n}
 
   val apiRoutes = new LoginService().route
 
