@@ -12,16 +12,14 @@ trait HttpService extends Directives with CorsSupport with SwaggerHttpService wi
   override val apiTypes = Seq(ru.typeOf[LoginService])
   override val host = "localhost:8080"
   override val info = Info(
-    "API docs for Akka-Http Example project",
-    "0.1","Akka-Http Example",
+    "API docs for Akka-Http Blog project",
+    "0.1","Akka-Http Blog",
     "",
     Some(Contact("Martin","","")),
     None,
     Map())
-  override val basePath = "/"    //the basePath for the API you are exposing
-  override val apiDocsPath = "/api-docs" //where you want the swagger-json endpoint exposed
-
-  //override def swaggerConfig { n}
+  override val basePath = "/"
+  override val apiDocsPath = "docs"
 
   val apiRoutes = new LoginService().route
 

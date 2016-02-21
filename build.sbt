@@ -1,4 +1,4 @@
-name := "akka-rest-api"
+name := "akka-http-blog"
 
 version := "1.0"
 
