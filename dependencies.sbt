@@ -5,6 +5,8 @@ val slick = "com.typesafe.slick" %% "slick" % slickVersion :: Nil
 val postgreSqlVersion = "9.4.1207"
 val postgreSql = "org.postgresql" % "postgresql" % postgreSqlVersion :: Nil
 
+val postgreSqlAsync =  "com.github.mauricio" %% "postgresql-async" % "0.2.18" :: Nil
+
 val flywayVersion = "3.2.1"
 val flyway = "org.flywaydb" % "flyway-core"% flywayVersion :: Nil
 
@@ -51,6 +53,7 @@ libraryDependencies ++=
     joda        ++
     loggingDeps ++
     postgreSql  ++
+    postgreSqlAsync ++
     slick       ++
     swagger     ++
     testingDeps

@@ -9,8 +9,10 @@ trait Config {
 
   val httpInterface = httpConfig.getString("interface")
   val httpPort = httpConfig.getInt("port")
-
   val databaseUrl = databaseConfig.getString("url")
   val databaseUser = databaseConfig.getString("user")
   val databasePassword = databaseConfig.getString("password")
+  val dbPoolMaxObjects =  databaseConfig.getInt("pool.maxObjects")
+  val dbPoolMaxIdle = databaseConfig.getInt("pool.maxIdle")
+  val dbPoolMaxQueueSize = databaseConfig.getInt("pool.maxQueueSize")
 }
