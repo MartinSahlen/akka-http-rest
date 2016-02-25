@@ -3,6 +3,7 @@ package db
 import scala.concurrent.{ExecutionContext, Future}
 import com.github.mauricio.async.db.{ RowData, QueryResult }
 
+
 trait DB {
   implicit val executionContext : ExecutionContext
 
