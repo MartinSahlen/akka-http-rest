@@ -11,7 +11,7 @@ import domain.{PostRequest, PostResponse}
 import io.swagger.annotations._
 import json.JsonSupport
 import security.Authentication
-import spray.json.{JsObject, JsString}
+import spray.json.{JsNumber, JsString, JsObject}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
@@ -21,23 +21,48 @@ import scala.util.{Failure, Success}
 @Api(value = "/hello", produces = "application/json", consumes = "application/json")
 class LoginService(implicit val executionContext: ExecutionContext = global) extends LazyLogging with Directives with JsonSupport with DB {
 
-  val route = login ~ db
+  val route = login ~ addUser ~ getUsers
 
-  def getSomeStuff: Future[QueryResult] = {
-    execute("SELECT 0")
+  def doSomeStuff: Future[QueryResult] = {
+    execute("INSERT INTO users (username, password) VALUES (?, ?)", "martin", "password")
   }
 
-  def db = path("db") {
+  def addUser = path("adduser") {
     pathEndOrSingleSlash {
       get {
-        onComplete(getSomeStuff) {
+        onComplete(doSomeStuff) {
           case Success(data) => complete(data.toString)
           case Failure(ex) => complete(ex.toString)
         }
       }
     }
   }
-  
+
+  def getSomeStuff: Future[QueryResult] = {
+    execute("SELECT * FROM users")
+  }
+
+  def getUsers = path("getusers") {
+    pathEndOrSingleSlash {
+      get {
+        onComplete(getSomeStuff) {
+          case Success(data) => {
+            data.rows match {
+              case Some(resultSet) => complete(OK, for {r <- resultSet} yield {
+                JsObject(Map("id" -> JsNumber(r.apply("id").asInstanceOf[Long]),
+                  "username" -> JsString(r.apply("username").asInstanceOf[String]),
+                  "password" -> JsString(r.apply("password").asInstanceOf[String])
+                ))
+              })
+              case _ => complete("-1")
+            }
+          }
+          case Failure(ex) => complete(ex.toString)
+        }
+      }
+    }
+  }
+
   @ApiOperation(value = "Login", notes = "", nickname = "Login", httpMethod = "POST")
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Return Login Response", response = classOf[PostResponse]),
