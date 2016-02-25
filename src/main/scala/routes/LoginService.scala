@@ -4,33 +4,26 @@ import javax.ws.rs.Path
 
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives
-import com.github.mauricio.async.db.QueryResult
 import com.typesafe.scalalogging.LazyLogging
-import db.DB
-import domain.{PostRequest, PostResponse}
+import domain.{UserRepo, User, PostRequest, PostResponse}
 import io.swagger.annotations._
 import json.JsonSupport
 import security.Authentication
-import spray.json.{JsNumber, JsString, JsObject}
+import spray.json.{JsNumber, JsObject, JsString}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-
 @Api(value = "/hello", produces = "application/json", consumes = "application/json")
-class LoginService(implicit val executionContext: ExecutionContext = global) extends LazyLogging with Directives with JsonSupport with DB {
+class LoginService extends LazyLogging with Directives with JsonSupport {
 
   val route = login ~ addUser ~ getUsers
 
-  def doSomeStuff: Future[QueryResult] = {
-    execute("INSERT INTO users (username, password) VALUES (?, ?)", "martin", "password")
-  }
+  val userRepo = new UserRepo()
 
   def addUser = path("adduser") {
     pathEndOrSingleSlash {
       get {
-        onComplete(doSomeStuff) {
+        onComplete(userRepo.doSomeStuff) {
           case Success(data) => complete(data.toString)
           case Failure(ex) => complete(ex.toString)
         }
@@ -38,25 +31,11 @@ class LoginService(implicit val executionContext: ExecutionContext = global) ext
     }
   }
 
-  def getSomeStuff: Future[QueryResult] = {
-    execute("SELECT * FROM users")
-  }
-
   def getUsers = path("getusers") {
     pathEndOrSingleSlash {
       get {
-        onComplete(getSomeStuff) {
-          case Success(data) => {
-            data.rows match {
-              case Some(resultSet) => complete(OK, for {r <- resultSet} yield {
-                JsObject(Map("id" -> JsNumber(r.apply("id").asInstanceOf[Long]),
-                  "username" -> JsString(r.apply("username").asInstanceOf[String]),
-                  "password" -> JsString(r.apply("password").asInstanceOf[String])
-                ))
-              })
-              case _ => complete("-1")
-            }
-          }
+        onComplete(userRepo.getAllUsers) {
+          case Success(users) => complete(users)
           case Failure(ex) => complete(ex.toString)
         }
       }
