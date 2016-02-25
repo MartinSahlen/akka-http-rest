@@ -1,7 +1,3 @@
-
-val slickVersion = "3.1.1"
-val slick = "com.typesafe.slick" %% "slick" % slickVersion :: Nil
-
 val postgreSqlVersion = "9.4.1207"
 val postgreSql = "org.postgresql" % "postgresql" % postgreSqlVersion :: Nil
 
@@ -54,6 +50,5 @@ libraryDependencies ++=
     loggingDeps ++
     postgreSql  ++
     postgreSqlAsync ++
-    slick       ++
     swagger     ++
     testingDeps
