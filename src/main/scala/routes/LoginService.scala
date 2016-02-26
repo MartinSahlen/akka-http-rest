@@ -44,7 +44,7 @@ class LoginService extends LazyLogging with Directives with JsonSupport {
         val accessToken = authHeader.split(' ').last
         onSuccess(userRepo.getUserByAuthHeader(accessToken)).flatMap {
           case Some(user) => provide(user)
-          case None       => complete(Unauthorized,  JsObject(Map("status" -> JsString("Missing Authorization header"))))
+          case None       => complete(Unauthorized,  JsObject(Map("status" -> JsString("Wrong Authorization header"))))
         }
       case None => complete(Unauthorized,  JsObject(Map("status" -> JsString("Missing Authorization header"))))
     }
