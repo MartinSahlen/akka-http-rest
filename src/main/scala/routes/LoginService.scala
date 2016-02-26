@@ -23,10 +23,7 @@ class LoginService extends LazyLogging with Directives with JsonSupport {
   def addUser = path("adduser") {
     pathEndOrSingleSlash {
       get {
-        onComplete(userRepo.doSomeStuff) {
-          case Success(data) => complete(data.toString)
-          case Failure(ex) => complete(ex.toString)
-        }
+        complete(userRepo.doSomeStuff)
       }
     }
   }
@@ -34,10 +31,7 @@ class LoginService extends LazyLogging with Directives with JsonSupport {
   def getUsers = path("getusers") {
     pathEndOrSingleSlash {
       get {
-        onComplete(userRepo.getAllUsers) {
-          case Success(users) => complete(users)
-          case Failure(ex) => complete(ex.toString)
-        }
+       complete(userRepo.getAllUsers)
       }
     }
   }

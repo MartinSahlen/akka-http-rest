@@ -32,8 +32,14 @@ class UserRepo(implicit context: ExecutionContext = global) extends DB {
     }
   }
 
-  def doSomeStuff: Future[QueryResult] = {
-    execute("INSERT INTO users (username, password) VALUES (?, ?)", "martin", "password")
+  def doSomeStuff: Future[String] = {
+    execute("INSERT INTO users (username, password) VALUES (?, ?)", "martin", "password") map { data =>
+      data.rows match {
+        case Some(resultSet) => resultSet.toString
+      }
+    } recover {
+      case _ => "Something went really wrong"
+    }
   }
 
 }
