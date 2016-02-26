@@ -45,7 +45,7 @@ class LoginService extends LazyLogging with Directives with JsonSupport {
   def login = path("login") {
     pathEndOrSingleSlash {
       post {
-        authenticateBasic[String]("martin", Authentication.basicAuth) { username ⇒
+        authenticateBasic[String]("martin", Authentication.basicAuth) { username =>
           logger.info(s"$username successfully logged in!")
           entity(as[PostRequest]) { request =>
             com.wix.accord.validate(request) match {
