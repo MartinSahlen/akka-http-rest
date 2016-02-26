@@ -2,17 +2,14 @@ package routes
 
 import javax.ws.rs.Path
 
-import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.server.{ValidationRejection, Directives}
+import akka.http.scaladsl.server.Directives
 import com.typesafe.scalalogging.LazyLogging
-import domain.{UserRepo, User, PostRequest, PostResponse}
+import domain.{PostRequest, PostResponse, UserRepo}
 import io.swagger.annotations._
 import json.JsonSupport
 import security.Authentication
-import spray.json.{JsString, JsNumber, JsObject}
-
-import scala.util.{Failure, Success}
+import spray.json.{JsObject, JsString}
 
 @Api(value = "/hello", produces = "application/json", consumes = "application/json")
 class LoginService extends LazyLogging with Directives with JsonSupport {
