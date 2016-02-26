@@ -35,7 +35,7 @@ class LoginService extends LazyLogging with Directives with JsonSupport {
           complete(Unauthorized,  JsObject(Map("status" -> JsString("Missing Authorization header"))))
       }
   }
-
+  
   def getUsers = path("getusers") {
     pathEndOrSingleSlash {
       get {
