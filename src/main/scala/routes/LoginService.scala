@@ -27,17 +27,7 @@ class LoginService extends LazyLogging with Directives with JsonSupport {
       }
     }
   }
-
-  def extractAuthHeader = extractRequest.tflatMap[Tuple1[String]] {
-    case Tuple1(request) =>
-      request.headers.find(h => h.name == "Authorization") match {
-        case Some(authHeader) =>
-          provide(authHeader.value)
-        case _ =>
-          complete(Unauthorized,  JsObject(Map("status" -> JsString("Missing Authorization header"))))
-      }
-  }
-
+  
   def authenticate: Directive1[User] = {
     optionalHeaderValueByName("Authorization").flatMap {
       case Some(authHeader) =>
