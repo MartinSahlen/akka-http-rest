@@ -16,6 +16,8 @@ class UserRepo(implicit context: ExecutionContext = global) extends DB {
     execute("SELECT * FROM users")
   }
 
+  def getUserByAuthHeader(authHeader: String): Future[Option[User]] = Future {Some(new User("yo@uo.no", "passoword", Seq("admin")))}
+
   def getAllUsers: Future[JsValue] = {
     getSomeStuff map { data =>
       data.rows match {

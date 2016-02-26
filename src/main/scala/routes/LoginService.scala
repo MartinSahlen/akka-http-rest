@@ -3,13 +3,15 @@ package routes
 import javax.ws.rs.Path
 
 import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.server.Directives
+import akka.http.scaladsl.server.{AuthorizationFailedRejection, Directive1, Directives}
 import com.typesafe.scalalogging.LazyLogging
-import domain.{PostRequest, PostResponse, UserRepo}
+import domain.{User, PostRequest, PostResponse, UserRepo}
 import io.swagger.annotations._
 import json.JsonSupport
 import security.Authentication
 import spray.json.{JsObject, JsString}
+
+import scala.concurrent.Future
 
 @Api(value = "/hello", produces = "application/json", consumes = "application/json")
 class LoginService extends LazyLogging with Directives with JsonSupport {
@@ -35,12 +37,24 @@ class LoginService extends LazyLogging with Directives with JsonSupport {
           complete(Unauthorized,  JsObject(Map("status" -> JsString("Missing Authorization header"))))
       }
   }
-  
+
+  def authenticate: Directive1[User] = {
+    optionalHeaderValueByName("Authorization").flatMap {
+      case Some(authHeader) =>
+        val accessToken = authHeader.split(' ').last
+        onSuccess(userRepo.getUserByAuthHeader(accessToken)).flatMap {
+          case Some(user) => provide(user)
+          case None       => complete(Unauthorized,  JsObject(Map("status" -> JsString("Missing Authorization header"))))
+        }
+      case None => complete(Unauthorized,  JsObject(Map("status" -> JsString("Missing Authorization header"))))
+    }
+  }
+
   def getUsers = path("getusers") {
-    pathEndOrSingleSlash {
-      get {
-        extractAuthHeader { authHeader =>
-          logger.info(authHeader)
+    authenticate { user =>
+      logger.info(user.toString)
+      pathEndOrSingleSlash {
+        get {
           complete(userRepo.getAllUsers)
         }
       }
