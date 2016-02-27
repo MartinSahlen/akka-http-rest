@@ -5,38 +5,17 @@ import javax.ws.rs.Path
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives
 import com.typesafe.scalalogging.LazyLogging
-import domain.{PostRequest, PostResponse, User}
+import domain.PostResponse
 import io.swagger.annotations._
-import json.JsonSupport
-import security.Authentication.{authenticate, authenticateWithRoles}
+import security.{LoginFormatters, LoginRequest, LoginResponse}
 import spray.json.{JsObject, JsString}
+import java.util.UUID
 
 
-@Api(value = "/hello", produces = "application/json", consumes = "application/json")
-class LoginService extends LazyLogging with Directives with JsonSupport {
+@Api(value = "Login service", produces = "application/json", consumes = "application/json")
+class LoginService extends LazyLogging with Directives with LoginFormatters {
 
-  val route = login ~ addUser ~ getUsers
-
-  val userRepo = User
-
-  def addUser = pathPrefix("adduser") {
-    pathEndOrSingleSlash {
-      get {
-        complete(userRepo.getAllUsers)
-      }
-    }
-  }
-
-  def getUsers = pathPrefix("getusers") {
-    authenticateWithRoles(Seq("admin")) { user =>
-      logger.info(user.toString)
-      pathEndOrSingleSlash {
-        get {
-          complete(userRepo.getAllUsers)
-        }
-      }
-    }
-  }
+  val route = login
 
   @ApiOperation(value = "Login", notes = "", nickname = "Login", httpMethod = "POST")
   @ApiResponses(Array(
@@ -47,17 +26,16 @@ class LoginService extends LazyLogging with Directives with JsonSupport {
   def login = pathPrefix("login") {
     pathEndOrSingleSlash {
       post {
-        entity(as[PostRequest]) { request =>
+        entity(as[LoginRequest]) { request =>
           com.wix.accord.validate(request) match {
-            case com.wix.accord.Success => complete(PostResponse(s"${request.clientName}"))
-            case f@com.wix.accord.Failure(_) => {
+            case com.wix.accord.Success => complete(LoginResponse(UUID.randomUUID.toString))
+            case f@com.wix.accord.Failure(_) =>
               complete(BadRequest, for {v <- f.violations} yield {
                 JsObject(Map("error" -> JsString(v.constraint),
                   "description" -> JsString(v.description.getOrElse("")),
                   "value" -> JsString(v.value.toString)
                 ))
               })
-            }
           }
         }
       }

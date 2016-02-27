@@ -6,7 +6,7 @@ import spray.json._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class User(email: String, password: String, role: String)
+case class User(id: String, username: String, password: String, role: String)
 
 object User extends DB {
 
@@ -17,10 +17,10 @@ object User extends DB {
   }
 
   def createUser(user: User): Future[User] = {
-    Future {new User("yo@uo.no", "passoword", "admin")}
+    Future {new User("234234", "yo@uo.no", "passoword", "admin")}
   }
 
-  def getUserByAuthHeader(authHeader: String): Future[Option[User]] = Future {Some(new User("yo@uo.no", "passoword", "admin"))}
+  def getUserByLoginToken(loginToken: String): Future[Option[User]] = Future {Some(new User("yo@uo.no", "passoword", "admin"))}
 
   def getAllUsers: Future[JsValue] = {
     getSomeStuff map { data =>

@@ -6,6 +6,6 @@ CREATE TABLE "blog_post" (
   "slug"       VARCHAR NOT NULL UNIQUE,
   "intro"      VARCHAR NOT NULL,
   "content"    TEXT NOT NULL,
-  "created"    TIMESTAMP NOT NULL,
-  "modified"   TIMESTAMP NOT NULL
+  "created"    TIMESTAMPTZ NOT NULL,
+  "modified"   TIMESTAMPTZ NOT NULL
 );

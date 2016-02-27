@@ -4,6 +4,6 @@ CREATE TABLE "users" (
   "role"     VARCHAR NOT NULL,
   "password" VARCHAR NOT NULL,
   "email"    VARCHAR,
-  "created"  TIMESTAMP NOT NULL,
-  "modified" TIMESTAMP NOT NULL
+  "created"  TIMESTAMPTZ NOT NULL,
+  "modified" TIMESTAMPTZ NOT NULL
 );
