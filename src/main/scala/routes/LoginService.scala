@@ -5,12 +5,11 @@ import javax.ws.rs.Path
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives
 import com.typesafe.scalalogging.LazyLogging
-import domain.PostResponse
+import domain.{LoginToken, PostResponse}
+import LoginToken.generateLoginToken
 import io.swagger.annotations._
 import security.{LoginFormatters, LoginRequest, LoginResponse}
 import spray.json.{JsObject, JsString}
-import java.util.UUID
-
 
 @Api(value = "Login service", produces = "application/json", consumes = "application/json")
 class LoginService extends LazyLogging with Directives with LoginFormatters {
@@ -28,7 +27,11 @@ class LoginService extends LazyLogging with Directives with LoginFormatters {
       post {
         entity(as[LoginRequest]) { request =>
           com.wix.accord.validate(request) match {
-            case com.wix.accord.Success => complete(LoginResponse(UUID.randomUUID.toString))
+            case com.wix.accord.Success =>
+              onSuccess(generateLoginToken(request.username, request.password)) {
+                case Some(token) => complete(LoginResponse(token.token))
+                case _ => complete(BadRequest, JsObject(Map("status" -> JsString("Wrong username or password"))))
+              }
             case f@com.wix.accord.Failure(_) =>
               complete(BadRequest, for {v <- f.violations} yield {
                 JsObject(Map("error" -> JsString(v.constraint),

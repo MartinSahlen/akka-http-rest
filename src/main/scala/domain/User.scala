@@ -1,6 +1,6 @@
 package domain
 
-import com.github.mauricio.async.db.QueryResult
+import com.github.mauricio.async.db.{RowData, QueryResult}
 import db.DB
 import spray.json._
 import scala.concurrent.{ExecutionContext, Future}
@@ -20,7 +20,16 @@ object User extends DB {
     Future {new User("234234", "yo@uo.no", "passoword", "admin")}
   }
 
-  def getUserByLoginToken(loginToken: String): Future[Option[User]] = Future {Some(new User("yo@uo.no", "passoword", "admin"))}
+  def userFromRowData(row: RowData): User = {
+    User(
+      row.apply("id").asInstanceOf[String],
+      row.apply("username").asInstanceOf[String],
+      row.apply("password").asInstanceOf[String],
+      row.apply("role").asInstanceOf[String]
+    )
+  }
+
+  def getUserByLoginToken(loginToken: String): Future[Option[User]] = Future {Some(new User("id","yo@uo.no", "passoword", "admin"))}
 
   def getAllUsers: Future[JsValue] = {
     getSomeStuff map { data =>
