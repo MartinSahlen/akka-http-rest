@@ -6,7 +6,7 @@ import spray.json._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class User(email: String, password: String, roles: Seq[String])
+case class User(email: String, password: String, role: String)
 
 object UserRepo extends DB {
 
@@ -16,7 +16,7 @@ object UserRepo extends DB {
     execute("SELECT * FROM users")
   }
 
-  def getUserByAuthHeader(authHeader: String): Future[Option[User]] = Future {Some(new User("yo@uo.no", "passoword", Seq("admin")))}
+  def getUserByAuthHeader(authHeader: String): Future[Option[User]] = Future {Some(new User("yo@uo.no", "passoword", "admin"))}
 
   def getAllUsers: Future[JsValue] = {
     getSomeStuff map { data =>
@@ -24,7 +24,8 @@ object UserRepo extends DB {
         case Some(resultSet) => JsArray((for {r <- resultSet} yield {
           JsObject(Map("id" -> JsNumber(r.apply("id").asInstanceOf[Long]),
             "username" -> JsString(r.apply("username").asInstanceOf[String]),
-            "password" -> JsString(r.apply("password").asInstanceOf[String])
+            "password" -> JsString(r.apply("password").asInstanceOf[String]),
+            "role" -> JsString(r.apply("role").asInstanceOf[String])
           ))
         }).toVector)
         case _ => JsObject(Map("status" -> JsString("No objects found")))
@@ -35,7 +36,7 @@ object UserRepo extends DB {
   }
 
   def doSomeStuff: Future[String] = {
-    execute("INSERT INTO users (username, password) VALUES (?, ?)", "martin", "password") map { data =>
+    execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", "martin", "password", "admin") map { data =>
       data.rows match {
         case Some(resultSet) => resultSet.toString
       }
