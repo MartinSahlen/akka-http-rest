@@ -1,14 +1,25 @@
 package security
 
-import akka.http.scaladsl.server.directives.Credentials
-import akka.http.scaladsl.server.directives.Credentials.Provided
+import akka.http.scaladsl.model.StatusCodes._
+import akka.http.scaladsl.server._
 import com.typesafe.scalalogging.LazyLogging
+import domain.{UserRepo, User}
+import json.JsonSupport
+import spray.json.{JsString, JsObject}
 
-object Authentication extends LazyLogging {
-  def basicAuth(credentials: Credentials): Option[String] = {
-    credentials match {
-      case p@Provided(username) if p.verify("password") => Option(username)
-      case _                                            => logger.info("You shall not pass!"); Option.empty
+object Authentication extends LazyLogging with Directives with JsonSupport {
+
+  val userRepo = UserRepo
+
+  val authenticate: Directive1[User] = {
+    optionalHeaderValueByName("Authorization") flatMap {
+      case Some(authHeader) =>
+        val accessToken = authHeader.split(' ').last
+        onSuccess(userRepo.getUserByAuthHeader(accessToken)).flatMap {
+          case Some(user) => provide(user)
+          case _       => complete(Unauthorized,  JsObject(Map("status" -> JsString("Wrong Authorization header"))))
+        }
+      case _ => complete(Unauthorized,  JsObject(Map("status" -> JsString("Missing Authorization header"))))
     }
   }
 }

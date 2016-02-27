@@ -8,9 +8,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 case class User(email: String, password: String, roles: Seq[String])
 
-class UserRepo(implicit context: ExecutionContext = global) extends DB {
+object UserRepo extends DB {
 
-  implicit val executionContext: ExecutionContext = context
+  implicit val executionContext: ExecutionContext = global
 
   def getSomeStuff: Future[QueryResult] = {
     execute("SELECT * FROM users")
