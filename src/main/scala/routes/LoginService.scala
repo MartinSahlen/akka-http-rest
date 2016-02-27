@@ -12,7 +12,7 @@ import security.{LoginJsonFormatters, LoginRequest, LoginResponse}
 import spray.json.{JsObject, JsString}
 
 @Api(value = "Login service", produces = "application/json", consumes = "application/json")
-class LoginJsonService extends LazyLogging with Directives with LoginJsonFormatters {
+class LoginService extends LazyLogging with Directives with LoginJsonFormatters {
 
   val route = login
 
