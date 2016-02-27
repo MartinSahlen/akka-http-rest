@@ -8,12 +8,16 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 case class User(email: String, password: String, role: String)
 
-object UserRepo extends DB {
+object User extends DB {
 
   implicit val executionContext: ExecutionContext = global
 
   def getSomeStuff: Future[QueryResult] = {
     execute("SELECT * FROM users")
+  }
+
+  def createUser(user: User): Future[User] = {
+    Future {new User("yo@uo.no", "passoword", "admin")}
   }
 
   def getUserByAuthHeader(authHeader: String): Future[Option[User]] = Future {Some(new User("yo@uo.no", "passoword", "admin"))}
@@ -44,5 +48,4 @@ object UserRepo extends DB {
       case _ => "Something went really wrong"
     }
   }
-
 }

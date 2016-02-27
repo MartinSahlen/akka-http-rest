@@ -1,10 +1,11 @@
-CREATE TABLE "blog" (
+CREATE TABLE "blog_post" (
   "id"         VARCHAR PRIMARY KEY,
   "author_id"  VARCHAR NOT NULL,
   "published"  BOOLEAN NOT NULL,
   "title"      VARCHAR NOT NULL,
-  "slug"       VARCHAR NOT NULL,
+  "slug"       VARCHAR NOT NULL UNIQUE,
   "intro"      VARCHAR NOT NULL,
-  "image"      VARCHAR,
-  "content"    TEXT NOT NULL
+  "content"    TEXT NOT NULL,
+  "created"    TIMESTAMP NOT NULL,
+  "modified"   TIMESTAMP NOT NULL
 );

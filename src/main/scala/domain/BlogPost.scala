@@ -29,3 +29,7 @@ case class BlogPost(
   @ApiModelProperty(value = "Id")
   id: String
 )
+
+object BlogPost {
+
+}
