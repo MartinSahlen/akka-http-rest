@@ -1,13 +1,13 @@
 package security
 
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server._
 import com.typesafe.scalalogging.LazyLogging
 import domain.User
-import json.JsonSupport
 import spray.json.{JsString, JsObject}
 
-object Authentication extends LazyLogging with Directives with JsonSupport {
+object Authentication extends LazyLogging with Directives with SprayJsonSupport {
 
   val userRepo = User
 

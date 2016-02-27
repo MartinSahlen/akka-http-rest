@@ -15,7 +15,7 @@ case class LoginRequest(
 @ApiModel
 case class LoginResponse(@ApiModelProperty token: String)
 
-trait LoginFormatters extends SprayJsonSupport with DefaultJsonProtocol {
+trait LoginJsonFormatters extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val loginRequestValidation = validator[LoginRequest] { request =>
     request.password is notEmpty
     request.username is notEmpty

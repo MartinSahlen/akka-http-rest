@@ -1,12 +1,12 @@
 package rejection
 
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server._
 import com.typesafe.scalalogging.LazyLogging
 import exception.{ErrorMessage, UnknownFieldsErrorMessage, UnknownFieldsException}
-import json.JsonSupport
 
-object Rejection extends LazyLogging with Directives with JsonSupport {
+object Rejection extends LazyLogging with Directives with SprayJsonSupport {
 
   val myRejectionHandler =
     RejectionHandler.newBuilder()
