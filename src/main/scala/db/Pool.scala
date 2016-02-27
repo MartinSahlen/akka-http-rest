@@ -6,7 +6,7 @@ import com.github.mauricio.async.db.pool.PoolConfiguration
 import com.github.mauricio.async.db.postgresql.pool.PostgreSQLConnectionFactory
 import utils.Config
 
-class Pool extends Config {
+class   Pool extends Config {
 
   val configuration = new Configuration(username = databaseUser,
     port = databasePort,

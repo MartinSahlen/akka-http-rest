@@ -5,7 +5,7 @@ import javax.ws.rs.Path
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives
 import com.typesafe.scalalogging.LazyLogging
-import domain.{User, PostRequest, PostResponse, UserRepo}
+import domain.{PostRequest, PostResponse, UserRepo}
 import io.swagger.annotations._
 import json.JsonSupport
 import security.Authentication.authenticate

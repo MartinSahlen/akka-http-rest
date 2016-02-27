@@ -3,10 +3,10 @@ package http
 import akka.http.scaladsl.server.Directives
 import com.github.swagger.akka.model.{Contact, Info}
 import com.github.swagger.akka.{HasActorSystem, SwaggerHttpService}
-import db.DB
 import rejection.Rejection
 import routes.LoginService
 import utils.CorsSupport
+
 import scala.reflect.runtime.{universe => ru}
 
 trait HttpService extends Directives with CorsSupport with SwaggerHttpService with HasActorSystem {
