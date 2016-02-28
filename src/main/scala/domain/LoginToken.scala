@@ -47,5 +47,5 @@ object LoginToken extends DB with LazyLogging {
           }
         }
       case _ => Future(None)
-      }
+    }
 }
