@@ -5,7 +5,7 @@ import java.util.UUID.randomUUID
 
 import com.typesafe.scalalogging.LazyLogging
 import db.DB.execute
-import org.joda.time.DateTime
+import org.joda.time.{DateTimeZone, DateTime}
 
 import domain.UserRepo.userFromRowData
 
@@ -48,11 +48,12 @@ object LoginToken extends LazyLogging {
   def generateLoginToken(username: String, password: String): Future[Option[LoginToken]] =
     authenticateUser(username, password) flatMap {
       case Some(user) =>
-        val token = LoginToken(randomUUID.toString, DateTime.now, DateTime.now)
+        val created = DateTime.now
+        val token = LoginToken(randomUUID.toString, created, created)
         execute("INSERT INTO login_tokens (token, user_id, last_used, created, modified) VALUES (?,?,?,?,?)",
           randomUUID.toString,
           user.id,
-          new Timestamp(DateTime.now.getMillis),
+          new Timestamp(token.created.getMillis),
           new Timestamp(token.created.getMillis),
           new Timestamp(token.modified.getMillis)) map { data =>
           data.rows match {
