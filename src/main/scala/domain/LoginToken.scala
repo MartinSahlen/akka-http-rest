@@ -7,7 +7,7 @@ import com.typesafe.scalalogging.LazyLogging
 import db.DB.execute
 import org.joda.time.DateTime
 
-import domain.User.userFromRowData
+import domain.UserRepo.userFromRowData
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.{ExecutionContext, Future}
@@ -19,23 +19,27 @@ object LoginToken extends LazyLogging {
   implicit val executionContext: ExecutionContext = global
 
   def authenticateUser(username: String, password: String): Future[Option[User]] = {
-    logger.debug(s"Attempting to log in user with username: $username")
+    logger.info(s"Attempting to log in user with username: $username")
     execute("SELECT * FROM users WHERE username=? LIMIT 1", username) map { data =>
       data.rows match {
         case Some(resultSet) =>
-          if (resultSet.isEmpty) {
-            logger.debug(s"Could not find user: $username")
-            None
-          } else {
-            val user = userFromRowData(resultSet.head)
-            if (BCrypt.checkpw(password, user.password)) {
-              logger.debug(s"User: $username successfully logged in")
-              Some(userFromRowData(resultSet.head))
-            }
-            else
-              logger.debug(s"User: $username was denied login because of wrong password")
+          resultSet.length match {
+            case 0 =>
+              logger.info(s"Could not find user: $username")
               None
+            case 1 =>
+              val user = userFromRowData(resultSet.head)
+              BCrypt.checkpw(password, user.password) match {
+                case true =>
+                  logger.info(s"User: $username successfully logged in")
+                  Some(user)
+                case _ =>
+                  logger.info(s"User: $username was denied login because of wrong password")
+                  None
+              }
+            case _ => None
           }
+
         case _ => None
       }
     }
@@ -45,7 +49,7 @@ object LoginToken extends LazyLogging {
     authenticateUser(username, password) flatMap {
       case Some(user) =>
         val token = LoginToken(randomUUID.toString, DateTime.now, DateTime.now)
-        execute("INSERT INTO login_tokens (token, user_id, last_used, created, modified) VALUES (?, ?, ?, ?, ?)",
+        execute("INSERT INTO login_tokens (token, user_id, last_used, created, modified) VALUES (?,?,?,?,?)",
           randomUUID.toString,
           user.id,
           new Timestamp(DateTime.now.getMillis),
