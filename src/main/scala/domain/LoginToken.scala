@@ -4,27 +4,37 @@ import java.sql.Timestamp
 import java.util.UUID.randomUUID
 
 import com.typesafe.scalalogging.LazyLogging
-import db.DB
+import db.DB.execute
 import org.joda.time.DateTime
 
 import domain.User.userFromRowData
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.{ExecutionContext, Future}
+import org.mindrot.jbcrypt.BCrypt
 
 case class LoginToken(token: String, modified: DateTime, created: DateTime)
 
-object LoginToken extends DB with LazyLogging {
+object LoginToken extends LazyLogging {
   implicit val executionContext: ExecutionContext = global
 
   def authenticateUser(username: String, password: String): Future[Option[User]] = {
-    execute("SELECT * FROM users WHERE username= ? AND password = ? LIMIT 1", username, password) map { data =>
+    logger.debug(s"Attempting to log in user with username: $username")
+    execute("SELECT * FROM users WHERE username=? LIMIT 1", username) map { data =>
       data.rows match {
         case Some(resultSet) =>
           if (resultSet.isEmpty) {
+            logger.debug(s"Could not find user: $username")
             None
           } else {
-            Some(userFromRowData(resultSet.head))
+            val user = userFromRowData(resultSet.head)
+            if (BCrypt.checkpw(password, user.password)) {
+              logger.debug(s"User: $username successfully logged in")
+              Some(userFromRowData(resultSet.head))
+            }
+            else
+              logger.debug(s"User: $username was denied login because of wrong password")
+              None
           }
         case _ => None
       }

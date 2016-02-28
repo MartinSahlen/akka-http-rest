@@ -1,11 +1,12 @@
 package db
 
+import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.{ExecutionContext, Future}
 import com.github.mauricio.async.db.{ RowData, QueryResult }
 
 
-trait DB {
-  implicit val executionContext : ExecutionContext
+object DB {
+  implicit val executionContext: ExecutionContext = global
 
   lazy val pool = new Pool().pool
 

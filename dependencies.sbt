@@ -41,11 +41,14 @@ val accord = "com.wix" %% "accord-core" % "0.5" :: Nil
 
 val swagger = "com.github.swagger-akka-http" %% "swagger-akka-http" % "0.6.2" :: Nil
 
+val jbCrypt = "de.svenkubiak" % "jBCrypt" % "0.4.1" :: Nil
+
 libraryDependencies ++=
     accord      ++
     akka        ++
     flyway      ++
     jackson     ++
+    jbCrypt     ++
     joda        ++
     loggingDeps ++
     postgreSql  ++
