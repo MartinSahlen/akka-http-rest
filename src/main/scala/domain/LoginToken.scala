@@ -5,13 +5,12 @@ import java.util.UUID.randomUUID
 
 import com.typesafe.scalalogging.LazyLogging
 import db.DB.execute
-import org.joda.time.{DateTimeZone, DateTime}
-
 import domain.UserRepo.userFromRowData
+import org.joda.time.DateTime
+import org.mindrot.jbcrypt.BCrypt
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.{ExecutionContext, Future}
-import org.mindrot.jbcrypt.BCrypt
 
 case class LoginToken(token: String, modified: DateTime, created: DateTime)
 
