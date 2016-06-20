@@ -10,7 +10,7 @@ object Rejection extends LazyLogging with Directives with SprayJsonSupport {
 
   val myRejectionHandler =
     RejectionHandler.newBuilder()
-      .handle { case MalformedRequestContentRejection(msg, Some(UnknownFieldsException(message, fields, fieldsReceived))) =>
+      .handle { case MalformedRequestContentRejection(msg, UnknownFieldsException(message, fields, fieldsReceived)) =>
         complete(BadRequest, UnknownFieldsErrorMessage(message, fields, fieldsReceived))
       }
       .handle { case MalformedRequestContentRejection(msg, e) =>
