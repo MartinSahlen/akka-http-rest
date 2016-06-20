@@ -37,7 +37,7 @@ val akka = Seq(
   "com.typesafe.akka" %% "akka-testkit" % akkaVersion
 )
 
-val accord = "com.wix" %% "accord-core" % "0.5" :: Nil
+val accord = "com.wix" %% "accord-core" % "0.6-SNAPSHOT" :: Nil
 
 val swagger = "com.github.swagger-akka-http" %% "swagger-akka-http" % "0.7.0" :: Nil
 

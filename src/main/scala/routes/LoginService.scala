@@ -17,14 +17,14 @@ class LoginService extends LazyLogging with Directives with LoginJsonFormatters 
         entity(as[LoginRequest]) { request =>
           com.wix.accord.validate(request) match {
             case com.wix.accord.Success =>
-              onSuccess(generateLoginToken(request.username, request.password)) {
+              onSuccess(generateLoginToken(request.username.get, request.password.get)) {
                 case Some(token) => complete(LoginResponse(token.token))
                 case _ => complete(BadRequest, JsObject(Map("status" -> JsString("Wrong username or password"))))
               }
             case f@com.wix.accord.Failure(_) =>
               complete(BadRequest, for {v <- f.violations} yield {
                 JsObject(Map("error" -> JsString(v.constraint),
-                  "description" -> JsString(v.description.getOrElse("")),
+                  "description" -> JsString(v.description),
                   "value" -> JsString(v.value.toString)
                 ))
               })

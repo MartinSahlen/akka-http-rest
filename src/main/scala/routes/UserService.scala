@@ -26,7 +26,7 @@ class UserService extends LazyLogging with Directives with UserJsonFormatters  {
               case f@com.wix.accord.Failure(_) =>
                 complete(BadRequest, for {v <- f.violations} yield {
                   JsObject(Map("error" -> JsString(v.constraint),
-                    "description" -> JsString(v.description.getOrElse("")),
+                    "description" -> JsString(v.description),
                     "value" -> JsString(v.value.toString)
                   ))
                 })
